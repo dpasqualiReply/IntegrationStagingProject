@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="batchetl_2.10-0.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/batchetl_2.10-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/devopsstorage_2.11-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mrspark2_2.11-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/realtimeetl_2.11-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/realtimemovierec_2.11-0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
