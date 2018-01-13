@@ -12,14 +12,18 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.2",
   "org.scalatest" % "scalatest_2.11" % "2.2.2" % "test",
-  "com.storm-enroute" %% "scalameter" % "0.8.2"
+  "com.storm-enroute" %% "scalameter" % "0.8.2",
+  "org.apache.spark" % "spark-core_2.11" % "2.2.0",
+  "org.apache.spark" % "spark-sql_2.11" % "2.2.0",
+  "org.apache.hadoop" % "hadoop-common" % "2.7.0",
+  "org.apache.spark" % "spark-sql_2.11" % "2.2.0",
+  "org.apache.spark" % "spark-hive_2.11" % "2.2.0",
+  "org.apache.spark" % "spark-yarn_2.11" % "2.2.0",
+  "org.apache.spark" % "spark-streaming_2.11" % "2.2.0",
+  "org.apache.spark" % "spark-streaming-kafka-0-8_2.11" % "2.2.0",
+  "org.apache.kudu" % "kudu-spark2_2.11" % "1.5.0",
+  "com.yammer.metrics" % "metrics-core" % "2.2.0"
 )
 
 testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 parallelExecution in Test := false
-
-libraryDependencies ++= Seq(
-  "org.postgresql" % "postgresql" % "9.3-1100-jdbc4",
-  "com.typesafe.slick" %% "slick" % "2.1.0",
-  "org.slf4j" % "slf4j-nop" % "1.6.4"
-)

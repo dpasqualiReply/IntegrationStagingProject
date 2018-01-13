@@ -1,10 +1,10 @@
 import it.reply.data.pasquali.Storage
+import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfterAll, FlatSpec}
-import scala.slick.driver.PostgresDriver.simple._
 
-import scala.io.Source
 import scala.util.Properties
 import sys.process._
+import org.apache.log4j.Logger
 
 
 class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
@@ -18,49 +18,58 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
   var storage : Storage = Storage()
   var connectionUrl = ""
 
+  var PSQL_PASSWORD = ""
+
+  var hiveMovies : DataFrame = null
+  var hiveLinks : DataFrame = null
+  var hiveGTags : DataFrame = null
+
+  var log : Logger = null
+
   override def beforeAll(): Unit = {
     super.beforeAll()
 
     CONF_DIR = Properties.envOrElse("DEVOPS_CONF_DIR", "conf")
-    PSQL_PASS_FILE =
-      Properties.envOrElse("PSQL_PASS_FILE", "/var/lib/cloudera-scm-server-db/data/generated_password.txt")
 
-    // Load configs
+    // Setup logger
+    log = Logger.getLogger(getClass.getName)
 
 
-    // read psql password
-    val src = Source.fromFile(PSQL_PASS_FILE)
-    val password = src.getLines.take(1).toList
-    src.close
+    log.info("----- Assuming that we are running " +
+      "on staging devops-worker machine -----")
+    log.info("----- Assuming that in the cloudera-vm " +
+      "production machine exists some data in PSQL database -----")
+    log.info("----- Assuming that sqoop bulk already runs and" +
+      " there are some movies, links and gtags data in Hive datalake -----")
+    log.info("----- Assuming there are test version of datalake and datamart databases -----")
+    log.info("-----  -----")
+    log.info("-----  -----")
+    log.info("-----  -----")
+    log.info("----- Start confluent schema registry -----")
 
-    connectionUrl = s"jdbc:postgresql://localhost:7432/postgres?user=cloudera-scm&password=${password}"
+    //**************************************************************************************
 
-    // Initialize DB tables
-    "sudo -i python $DBFEEDER_HOME/DBFeeder.py --init --datasets=$M20_PATH --psql_user=cloudera-scm --psql_password=" + password !!
+    log.info("----- Load Environment Config variables from file -----")
 
-    // run DB Feeder
-    "python $DBFEEDER_HOME/DBFeeder.py --fraction=0.001 --datasets=$M20_PATH --psql_user=cloudera-scm --psql_password=" + password !!
+
+
+
+
+
+    //**************************************************************************************
 
     // Run Confluent
     "confluent start schema-registry" !!
 
+    log.info("----- Start Kafka JDBC Connector and populate topics -----")
+
     // Run My JDBC Connector
-    "./opt/kafka-JDBC-connector/run.sh" !!
+    "./opt/kafka-JDBC-connector/run.sh" !
 
-    // Run Sqoop bulk
-    """sudo -u hdfs sqoop import --connect 'jdbc:postgresql://localhost:7432/postgres?ssl=false' --username 'cloudera-scm' -P --password '"""+
-      password+
-      """' --table 'genometags' --hive-table 'datalake.genometags' --hive-import  --check-column id --append""" !!
+    log.info("----- Stage environment initialized -----")
 
-    """sudo -u hdfs sqoop import --connect 'jdbc:postgresql://localhost:7432/postgres?ssl=false' --username 'cloudera-scm' -P --password '"""+
-      password+
-      """' --table 'links' --hive-table 'datalake.links' --hive-import  --check-column id --append""" !!
-
-    """sudo -u hdfs sqoop import --connect 'jdbc:postgresql://localhost:7432/postgres?ssl=false' --username 'cloudera-scm' -P --password '"""+
-      password+
-      """' --table 'movies' --hive-table 'datalake.movies' --hive-import  --check-column id --append""" !!
-
-    println("------ ENVIRONMENT INITIALZED ------")
+    log.info("----- Initialize Spark throught the storage class -----")
+    log.info("----- Enable both Hive and Kudu support -----")
 
     // Initialize Spark
     storage.init(SPARK_MASTER, SPARK_APPNAME, true)
@@ -69,58 +78,51 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
   // DB Feeder tests ---------------------------------------------------------------
 
   it must "contains Movies table and movie 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[Movies]
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=movies" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 5, 'Father of the Bride Part II (1995)', 'Comedy')"""))
   }
 
   it must "contains Links table and link 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[Links]
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=links" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 5, '0113041', '11862')"""))
   }
 
   it must "contains Genometags table and gtag 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[GTags]
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=genometags" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 5, '1930s')"""))
   }
 
   it must "contains Genomescores table and gscore 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[GScores]
-        assert(table.list.nonEmpty)
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=genomescores" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 1, 5, Decimal('0.14675'))"""))
   }
 
-  it must "contains Tag table and tag 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[Tags]
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+  it must "contains Tags table and tag 5" in {
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=tags" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 65, 592, 'dark hero', '1368150078')"""))
   }
 
-  it must "contains Rating table and rating 5" in {
-    Database.forURL(connectionUrl, driver = "org.postgresql.Driver") withSession {
-      implicit session =>
-        val table = TableQuery[Ratings]
-        assert(table.list.nonEmpty)
-        assert(table.filter(_.id === 5).list.nonEmpty)
-    }
+  it must "contains Ratings table and rating 5" in {
+    val select = s"python dbConnector/PSQLInterface.py --database=postgres --psql_user=cloudera-scm --psql_password=${PSQL_PASSWORD}" +
+      s" --host=cloudera-vm --port=7432 --selectAllFrom=ratings" !!
+
+    assert(select.nonEmpty)
+    assert(select.contains("""(5, 1, 50, 3.5, '1112484580')"""))
   }
 
   // -----------------------------------------------------------------------------
@@ -133,14 +135,22 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
   // -----------------------------------------------------------------------------
   // Sqoop bulk tests ------------------------------------------------------------
 
-  "The Hive Datalake" must "contains movies links and gtags" in {
-    pending
+  "The Hive Datalake" must "contains movies, links and gtags" in {
+    val sqlContext = new org.apache.spark.sql.SQLContext(storage.spark.sparkContext)
+
+    hiveMovies = sqlContext.sql(s"select * from datalake.movies")
+    hiveLinks = sqlContext.sql(s"select * from datalake.links")
+    hiveGTags = sqlContext.sql(s"select * from datalake.genometags")
+
+    assert(hiveMovies.count() > 0)
+    assert(hiveLinks.count() > 0)
+    assert(hiveGTags.count() > 0)
   }
   // -----------------------------------------------------------------------------
   // Configurations Tests --------------------------------------------------------
 
   "Config folder" must "contains conf for Batch ETL" in {
-    pending
+
   }
 
   it must "contains conf for Real Time ETL" in {
@@ -249,30 +259,5 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
     // drop all tables
   }
 
-  class Movies(tag: Tag) extends Table[(Int, String)](tag, "movies") {
-    def id = column[Int]("id")
-    def movieid = column[String]("movieid")
-    def * = (id, movieid)
-  }
-  class Tags(tag: Tag) extends Table[(Int)](tag, "tags") {
-    def id = column[Int]("id")
-    def * = (id)
-  }
-  class Links(tag: Tag) extends Table[(Int)](tag, "links") {
-    def id = column[Int]("id")
-    def * = (id)
-  }
-  class Ratings(tag: Tag) extends Table[(Int)](tag, "ratings") {
-    def id = column[Int]("id")
-    def * = (id)
-  }
-  class GTags(tag: Tag) extends Table[(Int)](tag, "genometags") {
-    def id = column[Int]("id")
-    def * = (id)
-  }
-  class GScores(tag: Tag) extends Table[(Int)](tag, "genomescores") {
-    def id = column[Int]("id")
-    def * = (id)
-  }
 
 }
