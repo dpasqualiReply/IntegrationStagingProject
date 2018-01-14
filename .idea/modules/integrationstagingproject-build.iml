@@ -93,5 +93,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="devopsstorage_2.11-0.3" level="project" />
   </component>
 </module>
