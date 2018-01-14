@@ -8,8 +8,9 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec}
 import scala.util.Properties
 import sys.process._
 import org.apache.log4j.Logger
+import org.scalatra.test.scalatest.ScalatraFlatSpec
 
-class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
+class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
   var CONF_DIR = ""
   var PSQL_PASS_FILE = ""
@@ -52,6 +53,8 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
   var MODEL_ARCHIVE_PATH = ""
 
   var log : Logger = null
+
+  var kafkaPID = -1
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -110,7 +113,9 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
     log.info("----- Start Kafka JDBC Connector and populate topics -----")
 
     // Run My JDBC Connector
-    "/opt/kafka-JDBC-connector/run.sh" !
+    var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
+
+    kafkaPID = kafka.head.split(" ")(1).asInstanceOf[Int]
 
     log.info("----- Stage environment initialized -----")
 
@@ -443,11 +448,16 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
     configuration = ConfigFactory.parseFile(new File(s"${CONF_DIR}/BatchML.conf"))
     MODEL_ARCHIVE_PATH = configuration.getString("bml.recommender.model_archive_path")
 
+    log.info("----- Load Batch ML configurations -----")
+    log.info("----- Check if model exists -----")
+
     assert(new File(MODEL_ARCHIVE_PATH).exists())
   }
 
 
   it must "compute a valid model based on loaded ratings (ECM < 1)" in {
+
+    log.info("----- Evaluate moved -----")
 
     var mse = mseLine.split(" ").last.asInstanceOf[Double]
     assert(mse < 1.0)
@@ -462,48 +472,82 @@ class DevOpsSystemSpec extends FlatSpec with BeforeAndAfterAll{
     configuration = ConfigFactory.parseFile(new File(s"${CONF_DIR}/RealTimeML.conf"))
     MODEL_ARCHIVE_PATH = configuration.getString("rtml.model.archive_path")
 
+    log.info("----- Load Real Time ML config -----")
+    log.info("----- Check if model exists -----")
+
     assert(new File(MODEL_ARCHIVE_PATH).exists())
   }
 
   "The RealTime ML run" should "take some times" in {
 
-    log.info("----- Run Batch ML process from fat jar in lib folder -----")
+    log.info("----- Run Real Time ML process from fat jar in lib folder -----")
 
-    var bmlStream = Process("spark-submit --master local --class JettyLauncher target/scala-2.11/RealTimeMovieRec-assembly-0.1.jar").lineStream
+    "spark-submit --master local --class JettyLauncher target/scala-2.11/RealTimeMovieRec-assembly-0.1.jar" !!
 
-    var done = false
+//    var bmlStream = Process("spark-submit --master local --class JettyLauncher target/scala-2.11/RealTimeMovieRec-assembly-0.1.jar").lineStream
+//
+//    var done = false
+//
+//    for{
+//      line <- bmlStream
+//      !done
+//    }{
+//      println(line)
+//      if(line.contains("Actual MSE is"))
+//        mseLine = line
+//      done = line.contains("BATCH ML PROCESS DONE")
+//    }
+  }
 
-    for{
-      line <- bmlStream
-      !done
-    }{
-      println(line)
-      if(line.contains("Actual MSE is"))
-        mseLine = line
-      done = line.contains("BATCH ML PROCESS DONE")
+  it must "be online" in {
+    get("/isOnline"){
+      status should equal (200)
+      body should include ("is Online")
     }
   }
 
-
-  it must "be online" in {
-    pending
-  }
-
   it must "compute a valid recommendation" in {
-    pending
+    it must "predict a valid value" in {
+      get("/raw/see/1/1"){
+        assert(status equals 200)
+
+        println("\n\n\n\n\n"+body+"\n\n\n\n\n\n\n")
+
+        var pred : Double = body.toDouble
+
+        assert(pred >= 0.0)
+        assert(pred <= 1.0)
+      }
+    }
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
 
-    // Destroy Kudu and Hive tables
+    log.info("----- Clean up Environment -----")
+    log.info("----- Drop Hive Ratings and Tags tables -----")
+
+    storage.runHiveQuery(s"drop table $HIVE_DATABASE.$HIVE_RATINGS_TABLE")
+    storage.runHiveQuery(s"drop table $HIVE_DATABASE.$HIVE_TAGS_TABLE")
+
+    log.info("----- Truncate Kudu tables -----")
+
+    storage.deleteKuduRows(storage.readKuduTable(s"$KUDU_DATABASE.$KUDU_TAGS_TABLE"), s"$KUDU_DATABASE.$KUDU_TAGS_TABLE")
+    storage.deleteKuduRows(storage.readKuduTable(s"$KUDU_DATABASE.$KUDU_RATINGS_TABLE"), s"$KUDU_DATABASE.$KUDU_RATINGS_TABLE")
+    storage.deleteKuduRows(storage.readKuduTable(s"$KUDU_DATABASE.$KUDU_GTAGS_TABLE"), s"$KUDU_DATABASE.$KUDU_GTAGS_TABLE")
+    storage.deleteKuduRows(storage.readKuduTable(s"$KUDU_DATABASE.$KUDU_MOVIES_TABLE"), s"$KUDU_DATABASE.$KUDU_MOVIES_TABLE")
 
     // Drop Spark
+    log.info("----- Close spark Session -----")
+    storage.closeSession()
 
     // stop JDBC connector
-    // stop DBFeeder
+    log.info("----- Kill Kafka JDBC Connector Process -----")
+    s"kill -9 $kafkaPID" !!
+
     // destroy confluent
-    // drop all tables
+    log.info("----- Stop and Destroy confluent topics -----")
+    "confluent destroy" !!
   }
 
 

@@ -1,0 +1,15 @@
+export HADOOP_USER_NAME=hdfs
+
+
+$ curl -L 'http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar' -o postgresql-9.2-1002.jdbc4.jar
+$ sudo cp postgresql-9.2-1002.jdbc4.jar /var/lib/sqoop/
+
+sudo -u hdfs sqoop import --connect 'jdbc:postgresql://localhost:7432/postgres' --username 'cloudera-scm' --password 'y6jOvCiNAz' --table 'links' --hive-table 'datalake.links' --hive-import  --check-column id --append --incremental 'append'
+
+---------------
+
+spark-submit --class Dummy --master yarn --deploy-mode client target/scala-2.10/DummySpark-assembly-0.1.jar WORK
+spark-submit --class Dummy --master yarn target/scala-2.10/DummySpark-assembly-0.1.jar 	WORK
+spark-submit --class Dummy --master local[*] target/scala-2.10/DummySpark-assembly-0.1.jar WORK
+spark-submit --class Dummy --master yarn --deploy-mode cluster target/scala-2.10/DummySpark-assembly-0.1.jar NOT 
+spark-submit --class Dummy --master yarn-cluster target/scala-2.10/DummySpark-assembly-0.1.jar NOT WORK
