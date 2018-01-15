@@ -830,9 +830,11 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     log.info("----- Close spark Session -----")
     storage.closeSession()
 
-    // stop JDBC connector
-    log.info("----- Kill Kafka JDBC Connector Process -----")
-    s"kill -9 $kafkaPID" !!
+    if(kafkaPID != null){
+      // stop JDBC connector
+      log.info("----- Kill Kafka JDBC Connector Process -----")
+      s"kill -9 $kafkaPID" !!
+    }
 
     // destroy confluent
     log.info("----- Stop and Destroy confluent topics -----")
