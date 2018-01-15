@@ -302,7 +302,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Start Kafka Console Stream to check that Kafka JDBC connector is running properly -----")
 
-      var kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-tags").lineStream
+      var kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-tags &").lineStream
 
       var pid = kafkaConsoleStream.head.split(" ").last
 
@@ -317,7 +317,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Console consumer for tags killed -----")
 
-      kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-ratings").lineStream
+      kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-ratings &").lineStream
 
       pid = kafkaConsoleStream.head.split(" ").last
 
