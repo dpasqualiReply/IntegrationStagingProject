@@ -213,8 +213,21 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       // Run My JDBC Connector
       var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
       //val pid = kafka.head
-      if(kafka.contains("finished initialization and start"))
-        return
+
+      var done = false
+
+      for{
+        line <- kafka
+        if !done
+      }{
+        println(line)
+        if(line.contains("finished initialization and start")){
+          done = true
+          return
+        }
+      }
+
+
       //println(s"kafka PID = $pid")
       //Configurator.putConfig(KAFKA_PID, pid)
     }
