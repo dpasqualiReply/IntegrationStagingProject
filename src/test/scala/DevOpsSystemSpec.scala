@@ -207,7 +207,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Start confluent schema registry -----")
 
       // Run Confluent
-      "confluent start schema-registry" !!
+      "confluent start schema-registry" !
 
       log.info("----- Start Kafka JDBC Connector and populate topics -----")
 
@@ -841,12 +841,14 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     if(kafkaPID != null){
       // stop JDBC connector
       log.info("----- Kill Kafka JDBC Connector Process -----")
-      s"kill -9 $kafkaPID" !!
+      s"kill -9 $kafkaPID" !
+
+      // destroy confluent
+      log.info("----- Stop and Destroy confluent topics -----")
+      "confluent destroy" !
     }
 
-    // destroy confluent
-    log.info("----- Stop and Destroy confluent topics -----")
-    "confluent destroy" !!
+
   }
 
 
