@@ -221,8 +221,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     val kuduTableBase = Configurator.getStringConfig(KUDU_TABLE_BASE)
 
     // Initialize Spark
-//    storage.init(SPARK_MASTER, SPARK_APPNAME, true)
-//      .initKudu(kuduAddr, kuduPort, kuduTableBase)
+    storage.init(SPARK_MASTER, SPARK_APPNAME, true)
+      .initKudu(kuduAddr, kuduPort, kuduTableBase)
 
     log.info("----- Init Done -----")
   }
