@@ -358,7 +358,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Batch ETL process from fat jar in lib folder -----")
 
-      var betlStream = Process("spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL-assembly-0.1.jar").lineStream
+      var betlStream = Process("spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL2-assembly-0.1.jar").lineStream
 
       assert(betlStream.contains("BATCH ETL PROCESS DONE"))
 
