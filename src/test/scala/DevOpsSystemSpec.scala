@@ -273,7 +273,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       val hiveMovies = storage.runHiveQuery(s"select * from $hiveDB.$movies limit 10")
       val hiveLinks = storage.runHiveQuery(s"select * from $hiveDB.$links limit 10")
-      val hiveGTags = storage.runHiveQuery(s"select * $hiveDB.$gtags limit 10")
+      val hiveGTags = storage.runHiveQuery(s"select * from $hiveDB.$gtags limit 10")
 
       log.info("----- And contains at least 10 elements -----")
 
