@@ -58,7 +58,6 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     "Config folder" must "contains conf Toggle integration tests" in {
 
       log.info(s"----- Check that $confDir conf dir contains toggle settings -----")
-
       assert(new File(s"$confDir/Toggle.conf").exists())
     }
 
@@ -81,7 +80,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info(s"----- Check that $confDir conf dir contains configurations for Batch ETL -----")
 
       assert(new File(s"$confDir/BatchETL.conf").exists())
-      assert(new File(s"$confDir/BatchETL_staging.conf").exists())
+      //assert(new File(s"$confDir/BatchETL_staging.conf").exists())
     }
 
     val betlConf = ConfigFactory.parseFile(new File(s"${confDir}/BatchETL.conf"))
@@ -105,7 +104,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info(s"----- Check that $confDir conf dir contains configurations for Real Time ETL -----")
 
       assert(new File(s"$confDir/RealTimeETL.conf").exists())
-      assert(new File(s"$confDir/RealTimeETL_staging.conf").exists())
+      //assert(new File(s"$confDir/RealTimeETL_staging.conf").exists())
     }
 
     val rtetlConf = ConfigFactory.parseFile(new File(s"${confDir}/RealTimeETL.conf"))
@@ -130,7 +129,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info(s"----- Check that $confDir conf dir contains configurations for Batch ML -----")
 
       assert(new File(s"$confDir/BatchML.conf").exists())
-      assert(new File(s"$confDir/BatchML_staging.conf").exists())
+      //assert(new File(s"$confDir/BatchML_staging.conf").exists())
     }
 
     val bml = ConfigFactory.parseFile(new File(s"${confDir}/BatchML.conf"))
@@ -144,7 +143,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info(s"----- Check that $confDir conf dir contains configurations for Real Time ML -----")
 
       assert(new File(s"$confDir/RealTimeML.conf").exists())
-      assert(new File(s"$confDir/RealTimeML_staging.conf").exists())
+      //assert(new File(s"$confDir/RealTimeML_staging.conf").exists())
     }
 
     val rtml = ConfigFactory.parseFile(new File(s"${confDir}/BatchML.conf"))
@@ -345,7 +344,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Batch ETL process from fat jar in lib folder -----")
 
-      var betlStream = Process("spark-submit --master local --class BatchETL lib/BatchETL-assembly-0.1.jar").lineStream
+      var betlStream = Process("spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL-assembly-0.1.jar").lineStream
 
       var done = false
 
