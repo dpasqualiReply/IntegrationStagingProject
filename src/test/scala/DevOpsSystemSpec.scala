@@ -62,13 +62,13 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     val toggleConf = ConfigFactory.parseFile(new File(s"${confDir}/Toggle.conf"))
 
-    Configurator.putConfig(TOGGLE_SPARK,  toggleConf.getString("toggle.integration.test.sparkSession"))
-    Configurator.putConfig(TOGGLE_SQOOP,  toggleConf.getString("toggle.integration.test.sqoop"))
-    Configurator.putConfig(TOGGLE_KAFKA,  toggleConf.getString("toggle.integration.test.kafka"))
-    Configurator.putConfig(TOGGLE_BETL,   toggleConf.getString("toggle.integration.test.betl"))
-    Configurator.putConfig(TOGGLE_RTETL,  toggleConf.getString("toggle.integration.test.rtetl"))
-    Configurator.putConfig(TOGGLE_BML,    toggleConf.getString("toggle.integration.test.bml"))
-    Configurator.putConfig(TOGGLE_RTML,   toggleConf.getString("toggle.integration.test.rtml"))
+    Configurator.putConfig(TOGGLE_SPARK,  toggleConf.getBoolean("toggle.integration.test.sparkSession"))
+    Configurator.putConfig(TOGGLE_SQOOP,  toggleConf.getBoolean("toggle.integration.test.sqoop"))
+    Configurator.putConfig(TOGGLE_KAFKA,  toggleConf.getBoolean("toggle.integration.test.kafka"))
+    Configurator.putConfig(TOGGLE_BETL,   toggleConf.getBoolean("toggle.integration.test.betl"))
+    Configurator.putConfig(TOGGLE_RTETL,  toggleConf.getBoolean("toggle.integration.test.rtetl"))
+    Configurator.putConfig(TOGGLE_BML,    toggleConf.getBoolean("toggle.integration.test.bml"))
+    Configurator.putConfig(TOGGLE_RTML,   toggleConf.getBoolean("toggle.integration.test.rtml"))
 
   }
 
@@ -221,8 +221,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     val kuduTableBase = Configurator.getStringConfig(KUDU_TABLE_BASE)
 
     // Initialize Spark
-    storage.init(SPARK_MASTER, SPARK_APPNAME, true)
-      .initKudu(kuduAddr, kuduPort, kuduTableBase)
+//    storage.init(SPARK_MASTER, SPARK_APPNAME, true)
+//      .initKudu(kuduAddr, kuduPort, kuduTableBase)
 
     log.info("----- Init Done -----")
   }
@@ -754,14 +754,24 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
   }
 
   it must "be online" in {
-    get("/isOnline"){
-      status should equal (200)
-      body should include ("is Online")
+
+    val toggle = Configurator.getBooleanConfig(TOGGLE_RTML)
+
+    if(toggle) {
+
+      get("/isOnline"){
+        status should equal (200)
+        body should include ("is Online")
+      }
     }
+    else pending
   }
 
   it must "compute a valid recommendation" in {
-    it must "predict a valid value" in {
+    val toggle = Configurator.getBooleanConfig(TOGGLE_RTML)
+
+    if(toggle) {
+
       get("/raw/see/1/1"){
         assert(status equals 200)
 
@@ -773,6 +783,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
         assert(pred <= 1.0)
       }
     }
+    else pending
   }
 
   override def afterAll(): Unit = {
