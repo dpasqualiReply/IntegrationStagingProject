@@ -16,6 +16,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
   val SPARK_MASTER = "local[*]"
   val SPARK_APPNAME = "Integration Tests"
+  val THRIFT_SERVER = "cloudera-vm"
+  val THRIFT_PORT = "9083"
 
   val TOGGLE_SPARK = "TOGGLE_SPARK"
   val TOGGLE_SQOOP = "TOGGLE_SQOOP"
@@ -221,7 +223,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     val kuduTableBase = Configurator.getStringConfig(KUDU_TABLE_BASE)
 
     // Initialize Spark
-    storage.init(SPARK_MASTER, SPARK_APPNAME, true)
+    storage.init(SPARK_MASTER, SPARK_APPNAME, THRIFT_SERVER, THRIFT_PORT)
       .initKudu(kuduAddr, kuduPort, kuduTableBase)
 
     log.info("----- Init Done -----")
