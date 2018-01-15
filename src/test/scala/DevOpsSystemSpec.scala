@@ -201,17 +201,23 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     //**************************************************************************************
 
-    log.info("----- Start confluent schema registry -----")
+    val toggle = Configurator.getBooleanConfig(TOGGLE_KAFKA)
 
-    // Run Confluent
-    //"confluent start schema-registry" !!
+    if(toggle) {
+      log.info("----- Start confluent schema registry -----")
 
-    log.info("----- Start Kafka JDBC Connector and populate topics -----")
+      // Run Confluent
+      "confluent start schema-registry" !!
 
-    // Run My JDBC Connector
-    //var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
+      log.info("----- Start Kafka JDBC Connector and populate topics -----")
 
-    //Configurator.putConfig(KAFKA_PID, kafka.head.split(" ")(1))
+      // Run My JDBC Connector
+      var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
+      val pid = kafka.head.split(" ")(1)
+
+      println(s"kafka PID = $pid")
+      Configurator.putConfig(KAFKA_PID, pid)
+    }
 
     log.info("----- Stage environment initialized -----")
 
