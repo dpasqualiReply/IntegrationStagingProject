@@ -3,4 +3,4 @@
 target/
 .idea/
 lib/
-!lib/devopsstorage*
+!devopsstorage*.jar
