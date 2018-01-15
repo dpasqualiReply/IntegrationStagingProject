@@ -213,21 +213,10 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       // Run My JDBC Connector
       var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
       //val pid = kafka.head
-
-      var done = false
-
-      for{
-        line <- kafka
-        if !done
-      }{
-        println(line)
-        done = line.contains("finished initialization and start")
-      }
+      assert(kafka.contains("finished initialization and start"))
 
       //println(s"kafka PID = $pid")
       //Configurator.putConfig(KAFKA_PID, pid)
-
-
     }
 
     log.info("----- Stage environment initialized -----")
@@ -358,15 +347,17 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       var betlStream = Process("spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL-assembly-0.1.jar").lineStream
 
-      var done = false
+      assert(betlStream.contains("BATCH ETL PROCESS DONE"))
 
-      for{
-        line <- betlStream
-        if !done
-      }{
-        println(line)
-        done = line.contains("BATCH ETL PROCESS DONE")
-      }
+//      var done = false
+//
+//      for{
+//        line <- betlStream
+//        if !done
+//      }{
+//        println(line)
+//        done = line.contains("BATCH ETL PROCESS DONE")
+//      }
     }
     else
       pending
