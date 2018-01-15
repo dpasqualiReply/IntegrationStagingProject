@@ -444,30 +444,32 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ETL process for ratings stream -----")
 
-      var rtetlStreamRatings = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
-
-      var done = false
-
-      for{
-        line <- rtetlStreamRatings
-        if !done
-      }{
-        println(line)
-        done = line.contains("Empty RDD")
-      }
+      var rtetlStreamRatings = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
+      assert(rtetlStreamRatings.contains("Empty RDD"))
+//      var done = false
+//
+//      for{
+//        line <- rtetlStreamRatings
+//        if !done
+//      }{
+//        println(line)
+//        done = line.contains("Empty RDD")
+//      }
 
       log.info("----- Run Real Time ETL process for tags stream -----")
 
-      var rtetlStreamTags = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
-      done = false
+      var rtetlStreamTags = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
+      assert(rtetlStreamTags.contains("Empty RDD"))
 
-      for{
-        line <- rtetlStreamTags
-        if !done
-      }{
-        println(line)
-        done = line.contains("Empty RDD")
-      }
+//      done = false
+//
+//      for{
+//        line <- rtetlStreamTags
+//        if !done
+//      }{
+//        println(line)
+//        done = line.contains("Empty RDD")
+//      }
     }
     else
       pending
