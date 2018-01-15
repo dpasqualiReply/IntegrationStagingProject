@@ -200,6 +200,22 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     //**************************************************************************************
 
+    log.info("----- Initialize Spark throught the storage class -----")
+    log.info("----- Enable both Hive and Kudu support -----")
+
+    val kuduAddr = Configurator.getStringConfig(KUDU_ADDR)
+    val kuduPort = Configurator.getStringConfig(KUDU_PORT)
+    val kuduTableBase = Configurator.getStringConfig(KUDU_TABLE_BASE)
+
+    // Initialize Spark
+    storage.init(SPARK_MASTER, SPARK_APPNAME, THRIFT_SERVER, THRIFT_PORT)
+      .initKudu(kuduAddr, kuduPort, kuduTableBase)
+
+    log.info("----- Init Done -----")
+
+    // *************************************************************************************
+
+
     val toggle = Configurator.getBooleanConfig(TOGGLE_KAFKA)
 
     if(toggle) {
@@ -222,30 +238,16 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       }{
         println(line)
         if(line.contains("finished initialization and start")){
+          log.info("----- Stage environment initialized -----")
           done = true
           return
         }
       }
-
-
       //println(s"kafka PID = $pid")
       //Configurator.putConfig(KAFKA_PID, pid)
     }
 
-    log.info("----- Stage environment initialized -----")
 
-    log.info("----- Initialize Spark throught the storage class -----")
-    log.info("----- Enable both Hive and Kudu support -----")
-
-    val kuduAddr = Configurator.getStringConfig(KUDU_ADDR)
-    val kuduPort = Configurator.getStringConfig(KUDU_PORT)
-    val kuduTableBase = Configurator.getStringConfig(KUDU_TABLE_BASE)
-
-    // Initialize Spark
-    storage.init(SPARK_MASTER, SPARK_APPNAME, THRIFT_SERVER, THRIFT_PORT)
-      .initKudu(kuduAddr, kuduPort, kuduTableBase)
-
-    log.info("----- Init Done -----")
   }
 
   // -----------------------------------------------------------------------------
