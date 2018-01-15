@@ -212,10 +212,22 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       // Run My JDBC Connector
       var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
-      val pid = kafka.head
+      //val pid = kafka.head
 
-      println(s"kafka PID = $pid")
-      Configurator.putConfig(KAFKA_PID, pid)
+      var done = false
+
+      for{
+        line <- kafka
+        if !done
+      }{
+        println(line)
+        done = line.contains("finished initialization and start")
+      }
+
+      //println(s"kafka PID = $pid")
+      //Configurator.putConfig(KAFKA_PID, pid)
+
+
     }
 
     log.info("----- Stage environment initialized -----")
@@ -816,7 +828,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     val kGTags = Configurator.getStringConfig(KUDU_GTAGS_TABLE)
     val kMovies = Configurator.getStringConfig(KUDU_MOVIES_TABLE)
 
-    val kafkaPID = Configurator.getStringConfig(KAFKA_PID)
+    //val kafkaPID = Configurator.getStringConfig(KAFKA_PID)
 
     log.info("----- Clean up Environment -----")
 
@@ -847,17 +859,15 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     log.info("----- Close spark Session -----")
     storage.closeSession()
 
-    if(kafkaPID != ""){
-      // stop JDBC connector
-      log.info("----- Kill Kafka JDBC Connector Process -----")
-      s"kill -9 $kafkaPID" !
+    // stop JDBC connector
+    //log.info("----- Kill Kafka JDBC Connector Process -----")
+    //s"kill -9 $kafkaPID" !
 
-      // destroy confluent
-      log.info("----- Stop and Destroy confluent topics -----")
-      "confluent destroy" !
+    // destroy confluent
+    log.info("----- Stop and Destroy confluent topics -----")
+    "confluent destroy" !
 
-      "sudo rm -rf /opt/connectm20.offsets" !
-    }
+    "sudo rm -rf /opt/connectm20.offsets" !
 
 
   }
