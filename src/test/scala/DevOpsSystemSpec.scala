@@ -320,8 +320,6 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       var kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-tags &").lineStream
 
-      //var pid = kafkaConsoleStream.head.split(" ").last
-
       var tagSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"string","optional":true,"field":"tag"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"tags"},"payload":{"id":1,"userid":18,"movieid":4141,"tag":"Mark Waters","timestamp":"1240597180"}}""".stripMargin
       var ratingSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"double","optional":true,"field":"rating"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"ratings"},"payload":{"id":1,"userid":1,"movieid":2,"rating":3.5,"timestamp":"1112486027"}}""".stripMargin
 
@@ -329,17 +327,15 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       assert(kafkaConsoleStream.contains(tagSample))
 
-      //s"kill -9 $pid" !
+      s"pkill -f .*/opt/kafka-JDBC-connector/debugConsoleConsumer.sh.*" !
 
       log.info("----- Console consumer for tags killed -----")
 
       kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-ratings &").lineStream
 
-      //pid = kafkaConsoleStream.head.split(" ").last
-
       assert(kafkaConsoleStream.contains(ratingSample))
 
-      //s"kill -9 $pid" !
+      s"pkill -f .*/opt/kafka-JDBC-connector/debugConsoleConsumer.sh.*" !
 
       log.info("----- Console consumer for ratings killed -----")
     }
@@ -866,8 +862,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     storage.closeSession()
 
     // stop JDBC connector
-    //log.info("----- Kill Kafka JDBC Connector Process -----")
-    //s"kill -9 $kafkaPID" !
+    log.info("----- Kill Kafka JDBC Connector Process -----")
+    s"pkill -f .*/opt/kafka-JDBC-connector/.*" !
 
     // destroy confluent
     log.info("----- Stop and Destroy confluent topics -----")
