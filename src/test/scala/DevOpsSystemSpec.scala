@@ -783,6 +783,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
         Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
       }
 
+      log.info("----- Sleep while webapp starts -----")
+      showProgress("Wait webap startup", 20000)
       log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
 
       rtStreamFuture onComplete {
@@ -853,6 +855,17 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 //      }
     }
     else pending
+  }
+
+  def showProgress(message : String, mils : Long) : Unit = {
+    val step = mils/100
+
+    print(message + " [")
+    for(i <- 1 to 100){
+      Thread.sleep(step)
+      print("=")
+    }
+    print("] DONE")
   }
 
 
