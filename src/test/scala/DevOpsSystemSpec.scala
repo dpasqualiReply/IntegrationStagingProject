@@ -927,6 +927,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     "sudo rm -rf /opt/connectm20.offsets" !
 
+    "sudo rm -rf m20Model*" !
 
   }
 
