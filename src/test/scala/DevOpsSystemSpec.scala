@@ -705,11 +705,6 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
           mseLine = line
         done = line.contains("BATCH ML PROCESS DONE")
       }
-
-      mseLine.split(" ").foreach(el => println(s"***************************************** ${el}"))
-
-
-
     }
     else
       pending
@@ -744,7 +739,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Evaluate moved -----")
 
-      var mse = mseLine.split(" ").last.asInstanceOf[Double]
+      var mse = mseLine.split(" ").last.toDouble
       assert(mse < 1.0)
 
     }
