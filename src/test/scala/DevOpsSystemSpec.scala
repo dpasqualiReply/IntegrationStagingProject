@@ -215,39 +215,30 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     // *************************************************************************************
 
+    log.info("----- Start confluent schema registry -----")
 
-    val toggle = Configurator.getBooleanConfig(TOGGLE_KAFKA)
+    // Run Confluent
+    "confluent start schema-registry" !
 
-    if(toggle) {
-      log.info("----- Start confluent schema registry -----")
+    log.info("----- Start Kafka JDBC Connector and populate topics -----")
 
-      // Run Confluent
-      "confluent start schema-registry" !
+    // Run My JDBC Connector
+    var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
+    //val pid = kafka.head
 
-      log.info("----- Start Kafka JDBC Connector and populate topics -----")
+    var done = false
 
-      // Run My JDBC Connector
-      var kafka = Process("/opt/kafka-JDBC-connector/run.sh &").lineStream
-      //val pid = kafka.head
-
-      var done = false
-
-      for{
-        line <- kafka
-        if !done
-      }{
-        println(line)
-        if(line.contains("finished initialization and start")){
-          log.info("----- Stage environment initialized -----")
-          done = true
-          return
-        }
+    for{
+      line <- kafka
+      if !done
+    }{
+      println(line)
+      if(line.contains("finished initialization and start")){
+        log.info("----- Stage environment initialized -----")
+        done = true
+        return
       }
-      //println(s"kafka PID = $pid")
-      //Configurator.putConfig(KAFKA_PID, pid)
     }
-
-
   }
 
   // -----------------------------------------------------------------------------
@@ -576,7 +567,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(rats.columns.contains("rating"))
       assert(rats.columns.contains("time"))
 
-      val r = rats.where("userid==1").where("movieid==2").collect()(0)
+      val r = rats.filter(el => el("userid") == 1 && el("movieid") == 2).collect()(0)
 
       assert(r(0) == 1)
       assert(r(1) == 2)
@@ -673,12 +664,12 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(tags.columns.contains("tag"))
       assert(tags.columns.contains("time"))
 
-      val t = tags.where("userid==18").where("movieid==4141").collect()(0)
+      val t = tags.filter(el => el("userid") == 18 && el("movieid") == 4141).collect()(0)
 
-      assert(t(1) == 18)
-      assert(t(2) == 4141)
-      assert(t(3) == "Mark Waters")
-      assert(t(4) == "1240597180")
+      assert(t(0) == 18)
+      assert(t(1) == 4141)
+      assert(t(2) == "Mark Waters")
+      assert(t(3) == "1240597180")
     }
     else
       pending
