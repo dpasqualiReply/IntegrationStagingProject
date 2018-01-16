@@ -561,7 +561,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val kuduDB = Configurator.getStringConfig(KUDU_DATABASE)
       var ratings = Configurator.getStringConfig(KUDU_RATINGS_TABLE)
 
-      var rats = storage.readKuduTable(s"$kuduDB.$ratings").limit(10).cache()
+      var rats = storage.readKuduTable(s"$kuduDB.$ratings").cache()
 
       assert(rats.count() == 10)
 
@@ -570,9 +570,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(rats.columns.contains("rating"))
       assert(rats.columns.contains("time"))
 
-      rats.createOrReplaceTempView("ratsKudu")
-
-      val r = spark.sql("select * from ratsKudu where userid = 1 and movieid = 2").collect()(0)
+      val r =rats.where("userid=1 and movieid=2").collect()(0)
 
       assert(r(0) == 1)
       assert(r(1) == 2)
@@ -660,7 +658,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val kuduDB = Configurator.getStringConfig(KUDU_DATABASE)
       var tt = Configurator.getStringConfig(KUDU_TAGS_TABLE)
 
-      var tags = storage.readKuduTable(s"$kuduDB.$tt").limit(10).cache()
+      var tags = storage.readKuduTable(s"$kuduDB.$tt").cache()
 
       assert(tags.count() == 10)
 
@@ -669,9 +667,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(tags.columns.contains("tag"))
       assert(tags.columns.contains("time"))
 
-      tags.createOrReplaceTempView("tagsKudu")
-
-      val t = storage.spark.sql("select * from tagsKudu where userid = 18 and movieid = 4141").collect()(0)
+      val t = tags.where("userid=18 and movieid=4141").collect()(0)
 
       assert(t(0) == 18)
       assert(t(1) == 4141)
