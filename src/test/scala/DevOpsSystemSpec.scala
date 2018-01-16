@@ -553,6 +553,9 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     val toggle = Configurator.getBooleanConfig(TOGGLE_RTETL)
 
+    val spark = storage.spark
+    import spark.implicits._
+
     if(toggle) {
 
       val kuduDB = Configurator.getStringConfig(KUDU_DATABASE)
@@ -567,7 +570,9 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(rats.columns.contains("rating"))
       assert(rats.columns.contains("time"))
 
-      val r = rats.filter(el => el("userid") == 1 && el("movieid") == 2).collect()(0)
+      rats.createOrReplaceTempView("ratsKudu")
+
+      val r = spark.sql("select * from ratsKudu where userid = 1 and movieid = 2").collect()(0)
 
       assert(r(0) == 1)
       assert(r(1) == 2)
@@ -664,7 +669,9 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(tags.columns.contains("tag"))
       assert(tags.columns.contains("time"))
 
-      val t = tags.filter(el => el("userid") == 18 && el("movieid") == 4141).collect()(0)
+      tags.createOrReplaceTempView("tagsKudu")
+
+      val t = storage.spark.sql("select * from tagsKudu where userid = 18 and movieid = 4141").collect()(0)
 
       assert(t(0) == 18)
       assert(t(1) == 4141)
