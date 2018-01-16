@@ -563,7 +563,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       var rats = storage.readKuduTable(s"$kuduDB.$ratings").cache()
 
-      assert(rats.count() == 10)
+      assert(rats.count() > 0)
 
       assert(rats.columns.contains("userid"))
       assert(rats.columns.contains("movieid"))
@@ -660,7 +660,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       var tags = storage.readKuduTable(s"$kuduDB.$tt").cache()
 
-      assert(tags.count() == 10)
+      assert(tags.count() > 0)
 
       assert(tags.columns.contains("userid"))
       assert(tags.columns.contains("movieid"))
