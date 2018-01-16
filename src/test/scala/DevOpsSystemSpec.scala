@@ -461,7 +461,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
         }
       }
       catch{
-        case e: Exception => log.info(e.getMessage)
+        case e: Exception => log.warn(s"Real Time ETL Stream Killed\n${e.getMessage}")
       }
 
       log.info("----- Run Real Time ETL process for tags stream -----")
@@ -485,7 +485,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
         }
       }
       catch{
-        case e: Exception => log.info(e.getMessage)
+        case e: Exception => log.info(s"Real Time ETL Stream Killed\n${e.getMessage}")
       }
 
 
@@ -573,10 +573,10 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       assert(rats.columns.contains("userid"))
       assert(rats.columns.contains("movieid"))
-      assert(rats.columns.contains("ratings"))
+      assert(rats.columns.contains("rating"))
       assert(rats.columns.contains("time"))
 
-      val r = rats.where("id == 1").collect()(0)
+      val r = rats.where("userid==1").where("movieid==2").collect()(0)
 
       assert(r(0) == 1)
       assert(r(1) == 2)
@@ -623,7 +623,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(tags.columns.contains("id"))
       assert(tags.columns.contains("userid"))
       assert(tags.columns.contains("movieid"))
-      assert(tags.columns.contains("tags"))
+      assert(tags.columns.contains("tag"))
       assert(tags.columns.contains("timestamp"))
 
       val t = tags.where("id == 1").collect()(0)
@@ -673,7 +673,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(tags.columns.contains("tag"))
       assert(tags.columns.contains("time"))
 
-      val t = tags.where("id == 1").collect()(0)
+      val t = tags.where("userid==18").where("movieid==4141").collect()(0)
 
       assert(t(1) == 18)
       assert(t(2) == 4141)
