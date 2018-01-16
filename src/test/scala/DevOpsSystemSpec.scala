@@ -782,9 +782,6 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
 
       var done = false
-
-      makeGetCall()
-
       for{
         line <- rtstream
         if !done
@@ -832,15 +829,6 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     else pending
   }
 
-  def makeGetCall() : Unit = {
-
-    log.info("----- Make a Call to Real Time recommender to unlock it -----")
-
-    val response: HttpResponse[String] =
-      Http("http://big-brother:10000/").asString
-
-    log.info(response.body)
-  }
 
   override def afterAll(): Unit = {
     super.afterAll()
