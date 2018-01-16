@@ -785,7 +785,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
 
-      rtStreamFuture onSuccess {
+      rtStreamFuture onComplete {
         case stream => {
 
           var done = false
@@ -904,7 +904,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     log.info("----- Kill Kafka JDBC Connector Process -----")
     s"pkill -f .*/opt/kafka-JDBC-connector/.*" !
 
-    s"pkill -f .*JettyLauncher .*" !
+    s"pkill -f .*JettyLauncher.*" !
 
     // destroy confluent
     log.info("----- Stop and Destroy confluent topics -----")
