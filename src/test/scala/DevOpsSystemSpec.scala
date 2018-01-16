@@ -830,8 +830,13 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
   }
 
   def makeGetCall() : Unit = {
+
+    log.info("----- Make a Call to Real Time recommender to unlock it -----")
+
     val response: HttpResponse[String] =
-      Http("http://localhost:10000/").asString
+      Http("http://big-brother:10000/").asString
+
+    log.info(response.body)
   }
 
   override def afterAll(): Unit = {
