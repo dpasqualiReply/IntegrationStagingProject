@@ -706,6 +706,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
         done = line.contains("BATCH ML PROCESS DONE")
       }
 
+      println(s"***************************************** $mseLine")
+
     }
     else
       pending
