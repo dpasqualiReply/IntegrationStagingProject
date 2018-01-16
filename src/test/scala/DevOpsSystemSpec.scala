@@ -777,7 +777,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ML process from fat jar in lib folder -----")
 
-      "spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf target/scala-2.11/RealTimeMovieRec-assembly-0.1.jar" !!
+      "spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar" !!
     }
     else
       pending
