@@ -784,7 +784,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       for{
         line <- rtstream
-        !done
+        if !done
       }{
         println(line)
         if(line.contains("IS ONLINE"))
