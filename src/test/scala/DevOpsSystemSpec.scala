@@ -828,14 +828,18 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     if(toggle) {
 
-      var result = scala.io.Source.fromURL("http://localhost:10000/raw/see/1/1").mkString
+      var result = scala.io.Source.fromURL("http://localhost:10000/raw/see/2/62/5").mkString
 
       println("\n\n\n\n\n"+result+"\n\n\n\n\n\n\n")
 
-      var pred : Double = result.toDouble
+      var ress = result.split("-").map(s => s.toDouble)
 
-      assert(pred >= 0.0)
-      assert(pred <= 1.0)
+      val errore = ress(1) - ress(0)
+
+      assert(ress(0) >= 0.0)
+      assert(ress(0) <= 5.0)
+      assert(ress(1) == 5.0)
+      assert(errore <= 1.0)
 
 //      get("/raw/see/1/1"){
 //        assert(status equals 200)
@@ -899,6 +903,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     // stop JDBC connector
     log.info("----- Kill Kafka JDBC Connector Process -----")
     s"pkill -f .*/opt/kafka-JDBC-connector/.*" !
+
+    s"pkill -f .*JettyLauncher .*" !
 
     // destroy confluent
     log.info("----- Stop and Destroy confluent topics -----")
