@@ -5,7 +5,8 @@ import it.reply.data.pasquali.Storage
 import org.apache.spark.sql.DataFrame
 import org.scalatest.BeforeAndAfterAll
 
-import scalaj.http.{Http, HttpOptions, HttpResponse}
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 import sys.process._
 import org.apache.log4j.Logger
 import org.scalatra.test.scalatest.ScalatraFlatSpec
@@ -777,18 +778,26 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ML process from fat jar in lib folder -----")
 
-      val rtstream = Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lines
+
+      val rtStreamFuture : Future[Stream[String]] = Future{
+        Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
+      }
 
       log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
 
-      var done = false
-      for{
-        line <- rtstream
-        if !done
-      }{
-        println(line)
-        if(line.contains("IS ONLINE"))
-          done = true
+      rtStreamFuture onSuccess {
+        case stream => {
+
+          var done = false
+          for{
+            line <- stream
+            if !done
+          }{
+            println(line)
+            if(line.contains("IS ONLINE"))
+              done = true
+          }
+        }
       }
     }
     else
