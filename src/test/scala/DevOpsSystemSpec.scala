@@ -784,23 +784,23 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       }
 
       log.info("----- Sleep while webapp starts -----")
-      showProgress("Wait webap startup", 20000)
+      showProgress("Wait webap startup", 30000)
       log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
 
-      rtStreamFuture onComplete {
-        case stream => {
-
-          var done = false
-          for{
-            line <- stream
-            if !done
-          }{
-            println(line)
-            if(line.contains("IS ONLINE"))
-              done = true
-          }
-        }
-      }
+//      rtStreamFuture onComplete {
+//        case stream => {
+//
+//          var done = false
+//          for{
+//            line <- stream
+//            if !done
+//          }{
+//            println(line)
+//            if(line.contains("IS ONLINE"))
+//              done = true
+//          }
+//        }
+//      }
     }
     else
       pending
@@ -829,6 +829,8 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     val toggle = Configurator.getBooleanConfig(TOGGLE_RTML)
 
     if(toggle) {
+
+      println(scala.io.Source.fromURL("http://localhost:10000/raw/see/2/62").mkString)
 
       var result = scala.io.Source.fromURL("http://localhost:10000/raw/see/2/62/5").mkString
 
