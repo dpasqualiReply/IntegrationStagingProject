@@ -23,7 +23,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark"    % "spark-streaming-kafka-0-8_2.11"  % "2.2.0",
   "org.apache.kudu"     % "kudu-spark2_2.11"                % "1.5.0",
   "com.yammer.metrics"  % "metrics-core"                    % "2.2.0",
-  "org.scalatra"        %% "scalatra-scalatest"             % "2.6.2"    % "test"
+  "org.scalatra"        %% "scalatra-scalatest"             % "2.6.2"    % "test",
+  "org.scalaj"          % "scalaj-http_2.11"                % "2.3.0"
 )
 
 testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")

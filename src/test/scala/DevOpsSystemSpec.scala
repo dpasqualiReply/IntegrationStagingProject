@@ -5,7 +5,7 @@ import it.reply.data.pasquali.Storage
 import org.apache.spark.sql.DataFrame
 import org.scalatest.BeforeAndAfterAll
 
-import scala.util.Properties
+import scalaj.http.{Http, HttpOptions, HttpResponse}
 import sys.process._
 import org.apache.log4j.Logger
 import org.scalatra.test.scalatest.ScalatraFlatSpec
@@ -777,25 +777,23 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ML process from fat jar in lib folder -----")
 
-      "spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar" !!
+      val rtstream = Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
+      var done = false
+
+      makeGetCall()
+
+      for{
+        line <- rtstream
+        !done
+      }{
+        println(line)
+        if(line.contains("IS ONLINE"))
+          done = true
+      }
     }
     else
       pending
 
-
-//    var bmlStream = Process("spark-submit --master local --class JettyLauncher target/scala-2.11/RealTimeMovieRec-assembly-0.1.jar").lineStream
-//
-//    var done = false
-//
-//    for{
-//      line <- bmlStream
-//      !done
-//    }{
-//      println(line)
-//      if(line.contains("Actual MSE is"))
-//        mseLine = line
-//      done = line.contains("BATCH ML PROCESS DONE")
-//    }
   }
 
   it must "be online" in {
@@ -829,6 +827,11 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       }
     }
     else pending
+  }
+
+  def makeGetCall() : Unit = {
+    val response: HttpResponse[String] =
+      Http("http://localhost:10000/").asString
   }
 
   override def afterAll(): Unit = {
