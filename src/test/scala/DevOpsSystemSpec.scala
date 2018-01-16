@@ -811,10 +811,14 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     if(toggle) {
 
-      get("/isOnline"){
-        status should equal (200)
-        body should include ("is Online")
-      }
+      assert(scala.io.Source.fromURL("http://localhost:10000/isOnline")
+        .mkString
+        .contains("is Online"))
+
+//      get("/isOnline"){
+//        status should equal (200)
+//        body should include ("is Online")
+//      }
     }
     else pending
   }
@@ -824,16 +828,25 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     if(toggle) {
 
-      get("/raw/see/1/1"){
-        assert(status equals 200)
+      var result = scala.io.Source.fromURL("http://localhost:10000/raw/see/1/1").mkString
 
-        println("\n\n\n\n\n"+body+"\n\n\n\n\n\n\n")
+      println("\n\n\n\n\n"+result+"\n\n\n\n\n\n\n")
 
-        var pred : Double = body.toDouble
+      var pred : Double = result.toDouble
 
-        assert(pred >= 0.0)
-        assert(pred <= 1.0)
-      }
+      assert(pred >= 0.0)
+      assert(pred <= 1.0)
+
+//      get("/raw/see/1/1"){
+//        assert(status equals 200)
+//
+//        println("\n\n\n\n\n"+body+"\n\n\n\n\n\n\n")
+//
+//        var pred : Double = body.toDouble
+//
+//        assert(pred >= 0.0)
+//        assert(pred <= 1.0)
+//      }
     }
     else pending
   }
