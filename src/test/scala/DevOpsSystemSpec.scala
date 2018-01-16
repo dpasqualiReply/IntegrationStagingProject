@@ -777,7 +777,10 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ML process from fat jar in lib folder -----")
 
-      val rtstream = Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
+      val rtstream = Process("spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lines
+
+      log.info("----- UNLOCKED UNLOCKED UNLOCKED UNLOCKED -----")
+
       var done = false
 
       makeGetCall()
