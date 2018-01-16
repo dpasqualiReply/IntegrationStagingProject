@@ -444,32 +444,51 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Real Time ETL process for ratings stream -----")
 
-      var rtetlStreamRatings = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
-      //assert(rtetlStreamRatings.contains("Empty RDD"))
-      var done = false
+      try{
+        var rtetlStreamRatings = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
+        //assert(rtetlStreamRatings.contains("Empty RDD"))
+        var done = false
 
-      for{
-        line <- rtetlStreamRatings
-        if !done
-      }{
-        println(line)
-        done = line.contains("Empty RDD")
+        for{
+          line <- rtetlStreamRatings
+          if !done
+        }{
+          println(line)
+          if(line.contains("Empty RDD")){
+            done = true
+            "pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
+          }
+        }
+      }
+      catch{
+        case e: Exception => log.info(e.getMessage)
       }
 
       log.info("----- Run Real Time ETL process for tags stream -----")
 
-      var rtetlStreamTags = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
-      //assert(rtetlStreamTags.contains("Empty RDD"))
+      try{
+        var rtetlStreamTags = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
+        //assert(rtetlStreamTags.contains("Empty RDD"))
 
-      done = false
+        var done = false
 
-      for{
-        line <- rtetlStreamTags
-        if !done
-      }{
-        println(line)
-        done = line.contains("Empty RDD")
+        for{
+          line <- rtetlStreamTags
+          if !done
+        }{
+          println(line)
+
+          if(line.contains("Empty RDD")){
+            done = true
+            "pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
+          }
+        }
       }
+      catch{
+        case e: Exception => log.info(e.getMessage)
+      }
+
+
     }
     else
       pending
@@ -486,7 +505,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val hiveDB = Configurator.getStringConfig(HIVE_DATABASE)
       var ratings = Configurator.getStringConfig(HIVE_RATINGS_TABLE)
 
-      assert(storage.runHiveQuery(s"show tables in $hiveDB like $ratings").count() == 1)
+      assert(storage.runHiveQuery(s"show tables in $hiveDB like '$ratings'").count() == 1)
     }
     else
       pending
@@ -509,7 +528,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(rats.columns.contains("userid"))
       assert(rats.columns.contains("movieid"))
       assert(rats.columns.contains("rating"))
-      assert(rats.columns.contains("timestammp"))
+      assert(rats.columns.contains("timestamp"))
 
       val r = rats.where("id == 1").collect()(0)
 
@@ -533,7 +552,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val kuduDB = Configurator.getStringConfig(KUDU_DATABASE)
       var ratings = Configurator.getStringConfig(KUDU_RATINGS_TABLE)
 
-      assert(storage.runHiveQuery(s"show tables in $kuduDB like $ratings").count() == 1)
+      assert(storage.runHiveQuery(s"show tables in $kuduDB like '$ratings'").count() == 1)
     }
     else
       pending
@@ -555,7 +574,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       assert(rats.columns.contains("userid"))
       assert(rats.columns.contains("movieid"))
       assert(rats.columns.contains("ratings"))
-      assert(rats.columns.contains("timestammp"))
+      assert(rats.columns.contains("time"))
 
       val r = rats.where("id == 1").collect()(0)
 
@@ -581,7 +600,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val hiveDB = Configurator.getStringConfig(HIVE_DATABASE)
       var tt = Configurator.getStringConfig(HIVE_TAGS_TABLE)
 
-      assert(storage.runHiveQuery(s"show tables in $hiveDB like $tt").count() == 1)
+      assert(storage.runHiveQuery(s"show tables in $hiveDB like '$tt'").count() == 1)
 
     }
     else
@@ -630,7 +649,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val kuduDB = Configurator.getStringConfig(KUDU_DATABASE)
       var tt = Configurator.getStringConfig(KUDU_TAGS_TABLE)
 
-      assert(storage.runHiveQuery(s"show tables in $kuduDB like $tt").count() == 1)
+      assert(storage.runHiveQuery(s"show tables in $kuduDB like '$tt'").count() == 1)
     }
     else
       pending
