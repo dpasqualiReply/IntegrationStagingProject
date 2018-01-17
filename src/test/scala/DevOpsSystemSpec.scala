@@ -459,7 +459,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Run Real Time ETL process for tags stream -----")
 
       try{
-        var rtetlStreamTags = Process("spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
+        var rtetlStreamTags = Process("sudo -u root spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
         //assert(rtetlStreamTags.contains("Empty RDD"))
 
         var done = false
