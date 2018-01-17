@@ -1,7 +1,7 @@
 pipeline {
     agent any
     parameters {
-        string(name: 'APP_TO_INTEGRATE', defaultValue: '???', descritpion: 'The newly updated assembly that you want to integration test')
+        string(name: 'APP_TO_INTEGRATE', defaultValue: '???', description: 'The newly updated assembly that you want to integration test')
     }
     stages {
         stage('Retrieve Assembly from deploy dir') {
