@@ -925,9 +925,9 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     log.info("----- Stop and Destroy confluent topics -----")
     "confluent destroy" !
 
-    "sudo rm -rf /opt/connectm20.offsets" !
+    "sudo -u rm -rf /opt/connectm20.offsets" !
 
-    "sudo rm -rf m20Model*" !
+    "sudo -u rm -rf /opt/staging/IntegrationStagingProject/m20Model*" !
 
   }
 
