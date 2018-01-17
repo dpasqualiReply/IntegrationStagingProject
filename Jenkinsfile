@@ -8,7 +8,6 @@ pipeline {
         sh 'sudo cp /opt/deploy/realTimeETL/RealTimeETL-assembly-0.1.jar lib/'
         sh 'sudo cp /opt/deploy/realTimeMovieRec/RealTimeMovieRec-assembly-0.1.jar lib/'
         sh 'ls lib/'
-        sh 'sudo spark-submit'
       }
     }
     stage('Integration Tests') {
