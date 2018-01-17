@@ -348,7 +348,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Batch ETL process from fat jar in lib folder -----")
 
-      var betlStream = Process("/opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL2-assembly-0.1.jar").lineStream
+      var betlStream = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class BatchETL --driver-java-options -Dconfig.file=conf/BatchETL.conf  lib/BatchETL2-assembly-0.1.jar").lineStream
 
       assert(betlStream.contains("BATCH ETL PROCESS DONE"))
 
@@ -437,7 +437,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Run Real Time ETL process for ratings stream -----")
 
       try{
-        var rtetlStreamRatings = Process("/opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
+        var rtetlStreamRatings = Process("sudo -u root/opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
         //assert(rtetlStreamRatings.contains("Empty RDD"))
         var done = false
 
@@ -693,7 +693,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Batch ML process from fat jar in lib folder -----")
 
-      var bmlStream = Process("/opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class Main --driver-java-options -Dconfig.file=conf/BatchML.conf lib/MRSpark2-assembly-0.1.jar").lineStream
+      var bmlStream = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class Main --driver-java-options -Dconfig.file=conf/BatchML.conf lib/MRSpark2-assembly-0.1.jar").lineStream
 
       var done = false
 
@@ -780,7 +780,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
 
       val rtStreamFuture : Future[Stream[String]] = Future{
-        Process("/opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
+        Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class JettyLauncher --driver-java-options -Dconfig.file=conf/RealTimeML.conf lib/RealTimeMovieRec-assembly-0.1.jar").lineStream
       }
 
       log.info("----- Sleep while webapp starts -----")
