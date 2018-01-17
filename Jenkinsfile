@@ -6,10 +6,10 @@ pipeline {
     stages {
         stage('Retrieve Assembly from deploy dir') {
             steps {
-                sh 'sudo cp /opt/deploy/batchETL/*-assembly-*.jar lib/'
-                sh 'sudo cp /opt/deploy/mrSpark2/*-assembly-*.jar lib/'
-                sh 'sudo cp /opt/deploy/realTimeETL/*-assembly-*.jar lib/'
-                sh 'sudo cp /opt/deploy/realTimeMovieRec/*-assembly-*.jar lib/'
+                sh 'sudo cp /opt/deploy/batchETL/BatchETL2-assembly-0.1.jar lib/'
+                sh 'sudo cp /opt/deploy/mrSpark2/MRSpark2-assembly-0.1.jar lib/'
+                sh 'sudo cp /opt/deploy/realTimeETL/RealTimeETL-assembly-0.1.jar lib/'
+                sh 'sudo cp /opt/deploy/realTimeMovieRec/RealTimeMovieRec-assembly-0.1.jar lib/'
             }
         }
         stage('Integration Tests') {
