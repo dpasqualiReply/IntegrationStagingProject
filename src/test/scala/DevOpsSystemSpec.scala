@@ -448,7 +448,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
           println(line)
           if(line.contains("Empty RDD")){
             done = true
-            "pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
+            "sudo pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
           }
         }
       }
@@ -472,7 +472,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
           if(line.contains("Empty RDD")){
             done = true
-            "pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
+            "sudo pkill -f .*lib/RealTimeETL-assembly-0.1.jar.*" !
           }
         }
       }
@@ -917,9 +917,9 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
     // stop JDBC connector
     log.info("----- Kill Kafka JDBC Connector Process -----")
-    s"pkill -f .*/opt/kafka-JDBC-connector/.*" !
+    s"sudo pkill -f .*/opt/kafka-JDBC-connector/.*" !
 
-    s"pkill -f .*JettyLauncher.*" !
+    s"sudo pkill -f .*JettyLauncher.*" !
 
     // destroy confluent
     log.info("----- Stop and Destroy confluent topics -----")
