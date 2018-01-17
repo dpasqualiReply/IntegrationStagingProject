@@ -7,7 +7,7 @@ pipeline {
         sh 'sudo cp /opt/deploy/mrSpark2/MRSpark2-assembly-0.1.jar lib/'
         sh 'sudo cp /opt/deploy/realTimeETL/RealTimeETL-assembly-0.1.jar lib/'
         sh 'sudo cp /opt/deploy/realTimeMovieRec/RealTimeMovieRec-assembly-0.1.jar lib/'
-        sh 'll lib/'
+        sh 'ls lib/'
       }
     }
     stage('Integration Tests') {
