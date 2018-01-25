@@ -566,6 +566,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       assert(rats.count() > 0)
 
+      assert(rats.columns.contains("id"))
       assert(rats.columns.contains("userid"))
       assert(rats.columns.contains("movieid"))
       assert(rats.columns.contains("rating"))
@@ -574,9 +575,10 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       val r =rats.where("userid=1 and movieid=2").collect()(0)
 
       assert(r(0) == 1)
-      assert(r(1) == 2)
-      assert(r(2) == 3.5)
-      assert(r(3) == "1112486027")
+      assert(r(1) == 1)
+      assert(r(2) == 2)
+      assert(r(3) == 3.5)
+      assert(r(4) == "1112486027")
     }
     else
       pending
@@ -663,6 +665,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       assert(tags.count() > 0)
 
+      assert(tags.columns.contains("id"))
       assert(tags.columns.contains("userid"))
       assert(tags.columns.contains("movieid"))
       assert(tags.columns.contains("tag"))
@@ -670,10 +673,11 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       val t = tags.where("userid=18 and movieid=4141").collect()(0)
 
-      assert(t(0) == 18)
-      assert(t(1) == 4141)
-      assert(t(2) == "Mark Waters")
-      assert(t(3) == "1240597180")
+      assert(t(0) == 1)
+      assert(t(1) == 18)
+      assert(t(2) == 4141)
+      assert(t(3) == "Mark Waters")
+      assert(t(4) == "1240597180")
     }
     else
       pending
@@ -925,7 +929,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
     log.info("----- Stop and Destroy confluent topics -----")
     "confluent destroy" !
 
-    "sudo -u rm -rf /opt/connectm20.offsets" !
+    "sudo -u root rm -rf /opt/connectm20.offsets" !
 
     "sudo -u root rm -rf /opt/staging/IntegrationStagingProject/m20Model*" !
 
