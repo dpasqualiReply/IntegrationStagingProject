@@ -437,7 +437,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Run Real Time ETL process for ratings stream -----")
 
       try{
-        var rtetlStreamRatings = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings smallest").lineStream
+        var rtetlStreamRatings = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-ratings_test smallest").lineStream
         //assert(rtetlStreamRatings.contains("Empty RDD"))
         var done = false
 
@@ -459,7 +459,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Run Real Time ETL process for tags stream -----")
 
       try{
-        var rtetlStreamTags = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags smallest").lineStream
+        var rtetlStreamTags = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class it.reply.data.pasquali.StreamMono --driver-java-options -Dconfig.file=conf/RealTimeETL.conf lib/RealTimeETL-assembly-0.1.jar psql-m20-tags_test smallest").lineStream
         //assert(rtetlStreamTags.contains("Empty RDD"))
 
         var done = false
