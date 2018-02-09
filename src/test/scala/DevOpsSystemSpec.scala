@@ -310,12 +310,12 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Start Kafka Console Stream to check that Kafka JDBC connector is running properly -----")
 
-      var kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-tags &").lineStream
+      var tagSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"string","optional":true,"field":"tag"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"tags_test"},"payload":{"id":1,"userid":18,"movieid":4141,"tag":"Mark Waters","timestamp":"1240597180"}}""".stripMargin
+      var ratingSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"double","optional":true,"field":"rating"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"ratings_test"},"payload":{"id":1,"userid":1,"movieid":2,"rating":3.5,"timestamp":"1112486027"}}""".stripMargin
 
-      var tagSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"string","optional":true,"field":"tag"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"tags"},"payload":{"id":1,"userid":18,"movieid":4141,"tag":"Mark Waters","timestamp":"1240597180"}}""".stripMargin
-      var ratingSample = """{"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"id"},{"type":"int32","optional":true,"field":"userid"},{"type":"int32","optional":true,"field":"movieid"},{"type":"double","optional":true,"field":"rating"},{"type":"string","optional":true,"field":"timestamp"}],"optional":false,"name":"ratings"},"payload":{"id":1,"userid":1,"movieid":2,"rating":3.5,"timestamp":"1112486027"}}""".stripMargin
+      var kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-tags_test &").lineStream
 
-      log.info("----- Check that the stream continas sample values for both tags and ratingss -----")
+      log.info("----- Check that the stream containas sample values for both tags and ratings -----")
 
       assert(kafkaConsoleStream.contains(tagSample))
 
@@ -323,7 +323,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Console consumer for tags killed -----")
 
-      kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-ratings &").lineStream
+      kafkaConsoleStream = Process("/opt/kafka-JDBC-connector/debugConsoleConsumer.sh psql-m20-ratings_test &").lineStream
 
       assert(kafkaConsoleStream.contains(ratingSample))
 
