@@ -735,7 +735,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
   }
 
-  it must "compute a valid model based on loaded ratings (ECM < 1)" in {
+  it should "compute a valid model based on loaded ratings (ECM < 1)" in {
 
     val toggle = Configurator.getBooleanConfig(TOGGLE_BML)
 
