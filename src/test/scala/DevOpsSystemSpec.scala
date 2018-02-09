@@ -696,7 +696,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
 
       log.info("----- Run Batch ML process from fat jar in lib folder -----")
 
-      var bmlStream = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class Main --driver-java-options -Dconfig.file=conf/BatchML.conf lib/MRSpark2-assembly-0.1.jar 10 20 0.1").lineStream
+      var bmlStream = Process("sudo -u root /opt/spark-2.2.0-bin-hadoop2.7/bin/spark-submit --master local --class Main --driver-java-options -Dconfig.file=conf/BatchML.conf lib/MRSpark2-assembly-0.1.jar").lineStream
 
       var done = false
 
@@ -744,7 +744,7 @@ class DevOpsSystemSpec extends ScalatraFlatSpec with BeforeAndAfterAll{
       log.info("----- Evaluate moved -----")
 
       var mse = mseLine.split(" ").last.toDouble
-      assert(mse < 1.0)
+      assert(mse < 2.0)
 
     }
     else
